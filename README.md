@@ -1,15 +1,15 @@
-# datahub-android-sdk
+# datahub-java-sdk
 
- [ ![Download](https://api.bintray.com/packages/xudafeng/maven/datahub-android-sdk/images/download.svg)](https://bintray.com/xudafeng/maven/datahub-android-sdk/_latestVersion)
- [![Build Status](https://travis-ci.org/macacajs/datahub-android-sdk.svg)](https://travis-ci.org/macacajs/datahub-android-sdk)
+ [ ![Download](https://api.bintray.com/packages/xudafeng/maven/datahub-java-sdk/images/download.svg)](https://bintray.com/xudafeng/maven/datahub-java-sdk/_latestVersion)
+ [![Build Status](https://travis-ci.org/macacajs/datahub-java-sdk.svg)](https://travis-ci.org/macacajs/datahub-java-sdk)
 
-DataHub SDK for Android
+DataHub SDK for Java
 
 ## Intro
 
 ## Document
 
-[javadoc](//macacajs.github.io/datahub-android-sdk/)
+[javadoc](//macacajs.github.io/datahub-java-sdk/)
 
 ## ChangeLog
 
