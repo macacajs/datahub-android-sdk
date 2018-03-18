@@ -2,19 +2,22 @@ package macaca.datahub.common;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+
 import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Utils {
 
@@ -27,15 +30,24 @@ public class Utils {
     private HttpEntity entity = null;
     private JSONObject jsonResponse = null;
     private String stringResponse = "";
-    private MacacaDriver driver;
 
-    public Utils(MacacaDriver driver) {
-        this.driver = driver;
+    public Utils() {
+        
     }
 
+    public Object request(String method, String url, Object data) throws Exception {
 
+        if ("GET".equals(method.toUpperCase())) {
+            return getRequest(url);
+        } else if ("POST".equals(method.toUpperCase())) {
+        	return postRequest(url, (JSONObject) data);
+        }
+
+        return null;
+    }
+    
     private void printResponse(String stringResponse) throws Exception {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //设置日期格式
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (stringResponse.length() > 800) {
             System.out.println(df.format(new java.util.Date()) + " Response:" + stringResponse.substring(0, 800) + "...more response is ignored..");
         } else {
@@ -44,30 +56,22 @@ public class Utils {
     }
 
     private void printRequest(String stringRequest) throws Exception {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //设置日期格式
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         System.out.println(df.format(new java.util.Date()) + " Request:" + stringRequest);
     }
 
-    private Object getRequest(String method, JSONObject jsonBody) throws Exception {
-
-        for (String key : jsonBody.keySet()) {
-            String value = jsonBody.get(key).toString();
-            method = method.replace(":" + key, value);
-        }
+    private Object getRequest(String url) throws Exception {
 
         try {
-            String url = Constants.SUFFIX.replace("${host}", driver.getHost()).replace("${port}", driver.getPort()) + method;
             printRequest(url);
             httpget = new HttpGet(url);
             response = httpclient.execute(httpget);
             entity = response.getEntity();
-            //System.out.println(response.getStatusLine().getStatusCode());
             if (entity != null) {
                 stringResponse = EntityUtils.toString(entity);
                 printResponse(stringResponse);
                 jsonResponse = JSON.parseObject(stringResponse);
-                handleStatus(jsonResponse.getInteger("status"));
-                return jsonResponse.get("value");
+                return jsonResponse.get("data");
             }
         } catch (ClientProtocolException e) {
             e.printStackTrace();
@@ -75,105 +79,26 @@ public class Utils {
         return null;
     }
 
-    private Object postRequest(String method, JSONObject jsonBody) throws Exception {
-        JSONObject tempObj = new JSONObject();
-        for (String key : jsonBody.keySet()) {
-            String value;
-            if (jsonBody.get(key) == null) {
-                value = null;
-            } else {
-                value = jsonBody.get(key).toString();
-            }
-            if (method.contains(":" + key)) {
-                if (value != null) {
-                    method = method.replace(":" + key, value);
-                }
-            } else {
-                tempObj.put(key, jsonBody.get(key));
-            }
-        }
-
-        try {
-            String url = Constants.SUFFIX.replace("${host}", driver.getHost()).replace("${port}", driver.getPort()) + method;
-
-            HttpPost httppost = new HttpPost(url);
-            StringEntity stringEntity = new StringEntity(JSONObject.toJSONString(tempObj,
-                    SerializerFeature.WriteMapNullValue), "utf-8");
-            stringEntity.setContentEncoding("utf-8");
-            stringEntity.setContentType("application/json");
-            httppost.setEntity(stringEntity);
-
-            printRequest(url + ":" + JSONObject.toJSONString(tempObj,
-                    SerializerFeature.WriteMapNullValue));
-            response = httpclient.execute(httppost);
-            entity = response.getEntity();
-            if (entity != null) {
-                stringResponse = EntityUtils.toString(entity);
-                printResponse(stringResponse);
-                jsonResponse = JSON.parseObject(stringResponse);
-                handleStatus(jsonResponse.getInteger("status"));
-                return jsonResponse;
-            }
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public Object deleteRequest(String method, JSONObject jsonBody) throws Exception {
+    private Object postRequest(String url, JSONObject jsonBody) throws Exception {
+    	List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
         for (String key : jsonBody.keySet()) {
             String value = jsonBody.get(key).toString();
-            method = method.replace(":" + key, value);
+            nameValuePairs.add(new BasicNameValuePair(key, value));
         }
-
-        String url = Constants.SUFFIX.replace("${host}", driver.getHost()).replace("${port}", driver.getPort()) + method;
-        HttpDelete httpdelete = new HttpDelete(url);
-        response = httpclient.execute(httpdelete);
-        entity = response.getEntity();
-        System.out.println(response.getStatusLine().getStatusCode());
-        if (entity != null) {
-            stringResponse = EntityUtils.toString(entity);
-            printResponse(stringResponse);
-            jsonResponse = JSON.parseObject(stringResponse);
-            handleStatus(jsonResponse.getInteger("status"));
-            return jsonResponse;
-        }
-        return null;
-    }
-
-    public Object request(String method, String url, JSONObject jsonObj) throws Exception {
-
-        if ("GET".equals(method.toUpperCase())) {
-            return getRequest(url, jsonObj);
-        } else if ("POST".equals(method.toUpperCase())) {
-            return postRequest(url, jsonObj);
-        } else if ("DELETE".equals(method.toUpperCase())) {
-            return deleteRequest(url, jsonObj);
-        }
-
-        return null;
-    }
-
-    void handleStatus(int statusCode) throws Exception {
-        JsonWireStatus status = JsonWireStatus.findByStatus(statusCode);
-        if (status != JsonWireStatus.Success && status != JsonWireStatus.Default) {
-            throw new Exception(status.message());
-        }
-    }
-
-    public String getStatus(String method) throws Exception {
-        try {
-            String url = Constants.SUFFIX.replace("${host}", driver.getHost()).replace("${port}", driver.getPort()) + method;
-            httpget = new HttpGet(url);
-            response = httpclient.execute(httpget);
-            entity = response.getEntity();
-            return String.valueOf(response.getStatusLine().getStatusCode());
+        
+    	HttpPost httppost = new HttpPost(url); 
+    	httppost.setHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+    	httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+    	try {
+        	CloseableHttpResponse res = httpclient.execute(httppost);
+            String json2 = EntityUtils.toString(res.getEntity(), "utf-8");  
+            System.out.println(json2);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         }
-        return "get server status error";
+
+        return null;
     }
 
 }

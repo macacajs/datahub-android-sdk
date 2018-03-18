@@ -3,7 +3,7 @@
   <groupId>macaca.datahub.sdk</groupId>
   <artifactId>datahub-java-sdk</artifactId>
   <packaging>jar</packaging>
-  <version>2.0.20</version>
+  <version>1.0.0</version>
   <name>datahub-java-sdk</name>
   <url>http://maven.apache.org</url>
   <build>
@@ -96,12 +96,6 @@
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
       <version>1.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock</artifactId>
-      <version>2.3.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

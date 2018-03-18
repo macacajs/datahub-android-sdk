@@ -8,6 +8,8 @@ local.properties
 .DS_Store
 target
 .settings
+.checkstyle
+*.iml
 *.sw*
 *.un~
 *.idea/
