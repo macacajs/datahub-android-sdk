@@ -101,8 +101,9 @@
   </dependencies>
   <distributionManagement>
     <repository>
-      <id>central</id>
-      <url>https://api.bintray.com/maven/xudafeng/maven/datahub-java-sdk/;publish=1;override=1;</url>
+      <id>bintray-macaca-datahub</id>
+      <name>macaca-datahub</name>
+      <url>https://api.bintray.com/maven/macaca/datahub/macaca.datahub/;publish=1</url>
     </repository>
   </distributionManagement>
 </project>
