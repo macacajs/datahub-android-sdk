@@ -3,7 +3,7 @@
  [ ![Download](https://api.bintray.com/packages/xudafeng/maven/datahub-java-sdk/images/download.svg)](https://bintray.com/xudafeng/maven/datahub-java-sdk/_latestVersion)
  [![Build Status](https://travis-ci.org/macacajs/datahub-java-sdk.svg)](https://travis-ci.org/macacajs/datahub-java-sdk)
 
-DataHub SDK for Java
+DataHub SDK for Android and Java applications
 
 ## Intro
 
